@@ -15,46 +15,78 @@ Skills are structured reference documents that enable AI assistants (Claude Code
 - **Project-specific conventions** for consistency
 - **Cross-references** between related concepts
 
-## Available Skills
+## Skills by Category
+
+### Query Engines
+Distributed compute and SQL engines.
 
 | Skill | Focus |
 |-------|-------|
-| [SDP.md](.claude/skills/SDP.md) | Spark Declarative Pipelines - YAML-driven ETL with validation |
+| [SDP.md](.claude/skills/query-engines/SDP.md) | Spark Declarative Pipelines - YAML-driven ETL |
 
-### Planned Skills
+### Table Formats
+Open table formats for ACID transactions and time travel.
 
-| Skill | Focus | Status |
-|-------|-------|--------|
-| Iceberg.md | Table operations, time travel, maintenance | Planned |
-| Streaming.md | Kafka → Spark structured streaming | Planned |
-| Unity-Catalog.md | REST catalog setup and multi-engine access | Planned |
-| Medallion.md | Bronze/Silver/Gold architecture patterns | Planned |
+| Skill | Focus |
+|-------|-------|
+| *Iceberg.md* | Table operations, snapshots, maintenance (planned) |
 
-## How Skills Activate
+### Catalogs
+Metadata management and multi-engine access.
 
-Skills load automatically based on request context when working with Claude Code in the lakehouse-stack repository.
+| Skill | Focus |
+|-------|-------|
+| *Unity-Catalog.md* | REST API setup, multi-engine access (planned) |
 
-| Request | Skills Loaded |
-|---------|---------------|
-| "Write a declarative pipeline" | SDP.md |
-| "Stream Kafka data to Iceberg" | Streaming.md, Iceberg.md |
-| "Set up Unity Catalog" | Unity-Catalog.md |
+### Orchestrators
+Workflow scheduling and pipeline management.
 
-You can also reference skills explicitly:
+| Skill | Focus |
+|-------|-------|
+| *Airflow.md* | DAGs, operators, Spark integration (planned) |
 
-```
-Read the SDP skill and help me write a pipeline for customer data
-```
+### Streaming
+Real-time ingestion and stream processing.
+
+| Skill | Focus |
+|-------|-------|
+| *Kafka.md* | Topics, producers, consumers (planned) |
+
+### Storage
+Object storage and data lake layers.
+
+| Skill | Focus |
+|-------|-------|
+| *SeaweedFS.md* | Local S3-compatible setup (planned) |
 
 ## Structure
 
 ```
-.claude/
-└── skills/
-    └── SDP.md              # Spark Declarative Pipelines
-CLAUDE.md                   # Project reference for AI assistants
-CONTRIBUTING.md             # Skill authoring guide
+.claude/skills/
+├── query-engines/
+│   ├── README.md
+│   └── SDP.md
+├── table-formats/
+│   └── README.md
+├── catalogs/
+│   └── README.md
+├── orchestrators/
+│   └── README.md
+├── streaming/
+│   └── README.md
+└── storage/
+    └── README.md
 ```
+
+## How Skills Activate
+
+Skills load automatically based on request context when working with Claude Code.
+
+| Request | Skills Loaded |
+|---------|---------------|
+| "Write a declarative pipeline" | query-engines/SDP.md |
+| "Stream Kafka data to Iceberg" | streaming/Kafka.md, table-formats/Iceberg.md |
+| "Set up Unity Catalog" | catalogs/Unity-Catalog.md |
 
 ## Contributing
 
@@ -63,23 +95,13 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for:
 - Skill file structure and standards
 - Data engineering conventions
 - Code example requirements
-- Submission process
 
 ### Quick Start
 
 1. Fork and clone this repository
-2. Create or modify skills in `.claude/skills/`
+2. Create or modify skills in `.claude/skills/<category>/`
 3. Test all code examples against lakehouse-stack
 4. Submit a pull request
-
-## Quality Assurance
-
-All skills are:
-
-- Tested against Spark 4.0/4.1 and Iceberg 1.10
-- Verified with real error messages and solutions
-- Reviewed for consistency with project conventions
-- Cross-referenced with official documentation
 
 ## Related
 
