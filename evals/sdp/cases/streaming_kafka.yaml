@@ -1,0 +1,50 @@
+# Test case: Streaming pipeline from Kafka
+# Tests understanding of @dp.table vs @dp.materialized_view
+
+skill: query-engines/spark/SDP.md
+
+prompt: |
+  Write an SDP pipeline that:
+  1. Ingests orders from Kafka topic "orders" into bronze.orders_stream (streaming)
+  2. Creates gold.hourly_revenue that aggregates by hour with watermark
+  Kafka is at localhost:9092. Use iceberg catalog.
+
+checks:
+  syntax:
+    - name: has_dp_import
+      pattern: "from pyspark import pipelines as dp"
+      required: true
+
+    - name: has_spark_any
+      pattern: "spark:\\s*Any"
+      required: true
+
+  streaming:
+    - name: uses_dp_table_for_streaming
+      pattern: "@dp\\.table"
+      required: true
+      description: "Uses @dp.table() for streaming tables"
+
+    - name: uses_readstream
+      pattern: "spark\\.readStream"
+      required: true
+      description: "Uses readStream for Kafka ingestion"
+
+    - name: has_watermark
+      pattern: "\\.withWatermark"
+      required: true
+      description: "Streaming aggregation has watermark"
+
+  conventions:
+    - name: decorator_no_catalog
+      pattern: "@dp\\.(table|materialized_view).*name=.(bronze|silver|gold)\\."
+      required: true
+
+    - name: spark_table_has_catalog
+      pattern: "spark\\.table.*iceberg\\."
+      required: true
+
+  anti_patterns:
+    - name: no_write_calls
+      pattern: "\\.writeStream|\\.write\\."
+      required: false

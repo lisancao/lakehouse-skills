@@ -1,0 +1,144 @@
+name: Skill Evaluation
+
+# Trigger on changes to skill files
+on:
+  push:
+    paths:
+      - '.claude/skills/**/*.md'
+  pull_request:
+    paths:
+      - '.claude/skills/**/*.md'
+  workflow_dispatch:
+    inputs:
+      skill:
+        description: 'Skill file to evaluate (e.g., .claude/skills/query-engines/spark/SDP.md)'
+        required: true
+      baseline:
+        description: 'Compare against no-skill baseline'
+        type: boolean
+        default: false
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      skills: ${{ steps.changes.outputs.skills }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Need for diff
+
+      - name: Detect changed skills
+        id: changes
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            # Manual trigger - use input
+            echo "skills=[\"${{ inputs.skill }}\"]" >> $GITHUB_OUTPUT
+          else
+            # Auto trigger - detect changed files
+            SKILLS=$(git diff --name-only HEAD~1 HEAD -- '.claude/skills/**/*.md' | jq -R -s -c 'split("\n") | map(select(length > 0))')
+            echo "skills=$SKILLS" >> $GITHUB_OUTPUT
+          fi
+
+  evaluate:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.skills != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        skill: ${{ fromJson(needs.detect-changes.outputs.skills) }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for version comparison
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install anthropic pyyaml
+
+      - name: Run skill evaluation
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          # Determine mode
+          if [ "${{ github.event.inputs.baseline }}" = "true" ]; then
+            MODE="--baseline"
+          else
+            MODE=""
+          fi
+
+          # Run evaluation
+          python evals/ci.py \
+            --skill "${{ matrix.skill }}" \
+            $MODE \
+            --fail-on-regression \
+            --json > results.json
+
+          # Display results
+          cat results.json | python -c "
+          import json, sys
+          data = json.load(sys.stdin)
+          for r in data:
+              delta = r.get('delta', 0) * 100
+              status = '✅' if delta >= 0 else '❌'
+              print(f\"{status} {r['case']}: {delta:+.0f}%\")
+          "
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-results-${{ matrix.skill }}
+          path: results.json
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const results = JSON.parse(fs.readFileSync('results.json', 'utf8'));
+
+            let body = `## Skill Evaluation: \`${{ matrix.skill }}\`\n\n`;
+            body += `| Case | Delta | Status |\n`;
+            body += `|------|-------|--------|\n`;
+
+            let hasRegression = false;
+            for (const r of results) {
+              const delta = (r.delta * 100).toFixed(0);
+              const status = r.delta >= 0 ? '✅' : '❌';
+              if (r.delta < 0) hasRegression = true;
+              body += `| ${r.case} | ${delta >= 0 ? '+' : ''}${delta}% | ${status} |\n`;
+            }
+
+            const avgDelta = results.reduce((a, r) => a + r.delta, 0) / results.length * 100;
+            body += `\n**Average: ${avgDelta >= 0 ? '+' : ''}${avgDelta.toFixed(1)}%**`;
+
+            if (hasRegression) {
+              body += `\n\n⚠️ **Regression detected** - some test cases perform worse with this skill change.`;
+            }
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+
+  summary:
+    needs: [detect-changes, evaluate]
+    if: always() && needs.detect-changes.outputs.skills != '[]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for failures
+        run: |
+          if [ "${{ needs.evaluate.result }}" = "failure" ]; then
+            echo "❌ Skill evaluation failed - possible regression"
+            exit 1
+          fi
+          echo "✅ Skill evaluation passed"

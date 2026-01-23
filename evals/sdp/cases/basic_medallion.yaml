@@ -1,0 +1,55 @@
+# Test case: Basic bronze-to-silver pipeline
+# Tests core SDP understanding
+
+skill: query-engines/spark/SDP.md
+
+prompt: |
+  Write an SDP pipeline that:
+  1. Loads orders from /data/orders.parquet into bronze.orders
+  2. Creates silver.orders_clean that filters out null order_ids
+  Use the iceberg catalog.
+
+# Concrete checks - each is binary pass/fail
+checks:
+  syntax:
+    - name: has_dp_import
+      pattern: "from pyspark import pipelines as dp"
+      required: true
+
+    - name: has_spark_any
+      pattern: "spark:\\s*Any"
+      required: true
+
+    - name: has_typing_import
+      pattern: "from typing import Any"
+      required: true
+
+  conventions:
+    - name: decorator_no_catalog
+      # Decorator should NOT have catalog prefix
+      pattern: "@dp\\.materialized_view.*name=.bronze\\."
+      required: true
+      description: "Decorator uses database.table format (no catalog)"
+
+    - name: spark_table_has_catalog
+      # spark.table() SHOULD have catalog prefix
+      pattern: "spark\\.table.*iceberg\\."
+      required: true
+      description: "spark.table() uses catalog.database.table format"
+
+  anti_patterns:
+    - name: no_write_calls
+      pattern: "\\.write\\."
+      required: false  # Must NOT match
+      description: "No explicit write calls in decorated functions"
+
+    - name: no_saveastable
+      pattern: "saveAsTable"
+      required: false
+      description: "No saveAsTable calls"
+
+  structure:
+    - name: returns_dataframe
+      pattern: "return\\s+spark\\."
+      required: true
+      description: "Functions return DataFrames"
