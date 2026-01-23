@@ -1,0 +1,59 @@
+# Test case: Naming convention edge case
+# This is the #1 source of confusion per the skill doc
+
+skill: query-engines/spark/SDP.md
+
+prompt: |
+  I have this imperative code, convert it to SDP:
+
+  ```python
+  def process_orders(spark):
+      bronze = spark.read.parquet("/data/orders.parquet")
+      bronze.write.saveAsTable("iceberg.bronze.orders")
+
+      silver = spark.table("iceberg.bronze.orders").filter(col("id").isNotNull())
+      silver.write.saveAsTable("iceberg.silver.orders")
+  ```
+
+  Use the iceberg catalog.
+
+checks:
+  # The key gotcha: decorator vs spark.table naming
+  naming:
+    - name: decorator_bronze_no_catalog
+      pattern: '@dp\\.materialized_view.*name=.bronze\\.orders'
+      required: true
+      description: "Bronze decorator has NO catalog prefix"
+
+    - name: decorator_silver_no_catalog
+      pattern: '@dp\\.materialized_view.*name=.silver\\.orders'
+      required: true
+      description: "Silver decorator has NO catalog prefix"
+
+    - name: spark_table_bronze_has_catalog
+      pattern: 'spark\\.table.*iceberg\\.bronze\\.orders'
+      required: true
+      description: "spark.table() for bronze HAS catalog prefix"
+
+  # Common mistakes to catch
+  mistakes:
+    - name: no_catalog_in_decorator
+      # This would be WRONG: @dp.materialized_view(name="iceberg.bronze.orders")
+      pattern: 'name=.iceberg\\.'
+      required: false
+      description: "Should NOT have catalog in decorator name"
+
+    - name: no_short_table_ref
+      # This would be WRONG: spark.table("bronze.orders")
+      pattern: 'spark\\.table.*"bronze\\.'
+      required: false
+      description: "Should NOT use short name in spark.table()"
+
+  structure:
+    - name: has_spark_any
+      pattern: "spark:\\s*Any"
+      required: true
+
+    - name: no_write_calls
+      pattern: "\\.write\\."
+      required: false
