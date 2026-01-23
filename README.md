@@ -55,7 +55,7 @@ Real-time ingestion and stream processing.
 
 | Skill | Focus |
 |-------|-------|
-| *Kafka.md* | Topics, producers, consumers (planned) |
+| [Kafka.md](.claude/skills/streaming/Kafka.md) | Topics, producers, consumers, Spark integration |
 
 ### Storage
 Object storage and data lake layers.

@@ -4,15 +4,15 @@ Skills for real-time data ingestion and stream processing.
 
 ## Available Skills
 
-*None yet - contributions welcome!*
+| Skill | Technology | Focus |
+|-------|------------|-------|
+| [Kafka.md](Kafka.md) | Apache Kafka | Topics, producers, consumers, Spark integration |
 
 ## Planned Skills
 
 | Skill | Technology | Focus |
 |-------|------------|-------|
-| Kafka.md | Apache Kafka | Topics, producers, consumers, schemas |
 | Kafka-Connect.md | Kafka Connect | Connectors, transforms, sink/source |
-| Spark-Streaming.md | Spark | Structured streaming to Iceberg |
 | Flink.md | Apache Flink | Stateful stream processing |
 
 ## Conventions
