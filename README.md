@@ -20,9 +20,14 @@ Skills are structured reference documents that enable AI assistants (Claude Code
 ### Query Engines
 Distributed compute and SQL engines.
 
+**[Spark](.claude/skills/query-engines/spark/)**
+
 | Skill | Focus |
 |-------|-------|
-| [SDP.md](.claude/skills/query-engines/SDP.md) | Spark Declarative Pipelines - YAML-driven ETL |
+| [SDP.md](.claude/skills/query-engines/spark/SDP.md) | Declarative Pipelines - YAML-driven ETL |
+| [PySpark.md](.claude/skills/query-engines/spark/PySpark.md) | DataFrame API, transformations, actions |
+| [Structured-Streaming.md](.claude/skills/query-engines/spark/Structured-Streaming.md) | Real-time processing, watermarks |
+| [Spark-SQL.md](.claude/skills/query-engines/spark/Spark-SQL.md) | SQL patterns, window functions, CTEs |
 
 ### Table Formats
 Open table formats for ACID transactions and time travel.
@@ -65,7 +70,12 @@ Object storage and data lake layers.
 .claude/skills/
 ├── query-engines/
 │   ├── README.md
-│   └── SDP.md
+│   └── spark/
+│       ├── README.md
+│       ├── SDP.md
+│       ├── PySpark.md
+│       ├── Structured-Streaming.md
+│       └── Spark-SQL.md
 ├── table-formats/
 │   └── README.md
 ├── catalogs/
@@ -84,8 +94,9 @@ Skills load automatically based on request context when working with Claude Code
 
 | Request | Skills Loaded |
 |---------|---------------|
-| "Write a declarative pipeline" | query-engines/SDP.md |
-| "Stream Kafka data to Iceberg" | streaming/Kafka.md, table-formats/Iceberg.md |
+| "Write a declarative pipeline" | query-engines/spark/SDP.md |
+| "PySpark DataFrame transformations" | query-engines/spark/PySpark.md |
+| "Stream Kafka data to Iceberg" | query-engines/spark/Structured-Streaming.md |
 | "Set up Unity Catalog" | catalogs/Unity-Catalog.md |
 
 ## Contributing
