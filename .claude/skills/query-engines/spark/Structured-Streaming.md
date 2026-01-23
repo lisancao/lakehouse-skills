@@ -1,6 +1,8 @@
 # Structured Streaming
 
 > Real-time stream processing with Spark's DataFrame API.
+>
+> **Validated against Spark 4.1**
 
 ## When to Use This Skill
 

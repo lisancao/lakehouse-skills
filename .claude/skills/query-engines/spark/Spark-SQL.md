@@ -1,6 +1,8 @@
 # Spark SQL
 
 > SQL interface for Spark data processing.
+>
+> **Validated against Spark 4.1**
 
 ## When to Use This Skill
 

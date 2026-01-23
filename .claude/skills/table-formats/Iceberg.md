@@ -1,6 +1,8 @@
 # Apache Iceberg
 
 > Open table format for huge analytic datasets with ACID transactions, time travel, and schema evolution.
+>
+> **Validated against Iceberg 1.10** | [Documentation](https://iceberg.apache.org/docs/1.10.0/)
 
 ## When to Use This Skill
 

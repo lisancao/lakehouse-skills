@@ -1,4 +1,6 @@
-# Spark Declarative Pipelines (SDP) - Complete Reference
+# Spark Declarative Pipelines (SDP)
+
+> **Validated against Spark 4.1** - Complete Reference
 
 A comprehensive guide for working with Spark 4.1+ Declarative Pipelines, from first principles to production deployment.
 

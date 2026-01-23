@@ -1,5 +1,7 @@
 # Spark
 
+> **Validated against Spark 4.1** | [Documentation](https://spark.apache.org/docs/latest/)
+
 Skills for Apache Spark distributed data processing.
 
 ## Available Skills

@@ -1,6 +1,8 @@
 # PySpark
 
 > DataFrame API for distributed data processing in Python.
+>
+> **Validated against Spark 4.1**
 
 ## When to Use This Skill
 
