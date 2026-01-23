@@ -4,14 +4,14 @@ Skills for open table formats enabling ACID transactions, time travel, and schem
 
 ## Available Skills
 
-*None yet - contributions welcome!*
+| Skill | Format | Focus |
+|-------|--------|-------|
+| [Iceberg.md](Iceberg.md) | Apache Iceberg | Tables, time travel, schema evolution, maintenance |
 
 ## Planned Skills
 
 | Skill | Format | Focus |
 |-------|--------|-------|
-| Iceberg.md | Apache Iceberg | Table operations, snapshots, maintenance |
-| Iceberg-Advanced.md | Apache Iceberg | Partitioning, compaction, migration |
 | Delta.md | Delta Lake | Unity Catalog integration, change data feed |
 | Hudi.md | Apache Hudi | Incremental processing, record-level updates |
 

@@ -34,7 +34,7 @@ Open table formats for ACID transactions and time travel.
 
 | Skill | Focus |
 |-------|-------|
-| *Iceberg.md* | Table operations, snapshots, maintenance (planned) |
+| [Iceberg.md](.claude/skills/table-formats/Iceberg.md) | Tables, time travel, schema evolution, maintenance |
 
 ### Catalogs
 Metadata management and multi-engine access.
